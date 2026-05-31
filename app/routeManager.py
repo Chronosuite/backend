@@ -1,6 +1,5 @@
 from flask import Blueprint, Flask
 from flask_cors import CORS
-import os
 
 
 class RouteManager:
