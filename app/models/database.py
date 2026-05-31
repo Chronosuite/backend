@@ -92,3 +92,103 @@ class db:
 		self.release_connection(conn)
 
 		return result
+
+
+
+	# Set up DB
+	def initializeDB(self) -> None:
+		"""
+		Set up tables and whatnot in SQL table if they don't exist
+		"""
+
+		# Create tables
+		def createTable(name, contents) -> None:
+			# Determine if need to force restart/recreate database tables
+			if current_app.config["FORCE_RESTART_SQL"]:
+				db.modify(f"DROP TABLE IF EXISTS {name};")
+				db.modify(f"CREATE TABLE {name} ({contents});")
+			else:
+				db.modify(f"CREATE TABLE IF NOT EXISTS {name} ({contents});")
+
+
+		# User Tables
+		createTable('users', """
+				id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+				email_hidden VARCHAR(10) NOT NULL,
+				email_hash CHAR(64) NOT NULL,
+				pass CHAR(64) NOT NULL,
+				plan VARCHAR(9) CHECK (plan IN ('init', 'free', 'trial', 'pro', 'unlimited')) NOT NULL DEFAULT 'free',
+				plan_date TIMESTAMP NOT NULL DEFAULT NOW(),
+			  	created TIMESTAMP NOT NULL DEFAULT NOW()
+			""")
+
+
+		# Calendar Tables
+		createTable('cal', """
+				id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+				owner UUID REFERENCES users(id) ON DELETE CASCADE
+			""") # For calendar
+		
+		createTable('cal_events', """
+				id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+				email VARCHAR(254) NOT NULL
+			""") # For events
+
+
+		# Tasks Tables
+		createTable('tasks', """
+				id SERIAL PRIMARY KEY,
+			  	name VARCHAR(5000) NOT NULL,
+			  	descr VARCHAR(100000) NOT NULL,
+			  	category INT REFERENCES tasks_categories(id) ON DELETE CASCADE
+			""")
+		
+		createTable('tasks_categories', """
+				id SERIAL PRIMARY KEY,
+				label VARCHAR(2500) NOT NULL,
+			  	color CHAR(6) NOT NULL,
+			  	owner UUID REFERENCES users(id) ON DELETE CASCADE
+			""")
+		
+
+		# Share/Many-To-Many Tables
+		createTable('tasks_share', """
+				id SERIAL PRIMARY KEY,
+			  	tasks INT REFERENCES cal(id) ON DELETE CASCADE,
+			  	user UUID REFERENCES users(id) ON DELETE CASCADE
+			""")
+		
+		createTable('tasks_categories_share', """
+				id SERIAL PRIMARY KEY,
+			  	category INT REFERENCES tasks_categories(id) ON DELETE CASCADE,
+			  	user UUID REFERENCES users(id) ON DELETE CASCADE
+			""")
+		
+		createTable('cal_share', """
+				id SERIAL PRIMARY KEY,
+			  	calendar INT REFERENCES cal(id) ON DELETE CASCADE,
+			  	user UUID REFERENCES users(id) ON DELETE CASCADE
+			""")
+		
+		createTable('cal_events_share', """
+				id SERIAL PRIMARY KEY,
+			  	event INT REFERENCES cal_events(id) ON DELETE CASCADE,
+			  	user UUID REFERENCES users(id) ON DELETE CASCADE
+			""")
+
+
+		# OTP Codes
+		createTable('otp_codes', """
+				id SERIAL PRIMARY KEY,
+				code_num CHAR(64) NOT NULL,
+				user UUID REFERENCES users(id) ON DELETE CASCADE,
+				created TIMESTAMP NOT NULL DEFAULT NOW()
+			""")
+
+
+		# Session/Auth Tables
+		createTable('sessions', """
+				id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+				user UUID REFERENCES users(id) ON DELETE CASCADE,
+				created TIMESTAMP NOT NULL DEFAULT NOW()
+			""")
