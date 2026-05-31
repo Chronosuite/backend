@@ -33,9 +33,9 @@ class RouteManager:
 			# Load configuration
 			self.index.config.from_object('config.Config')
 
-			# Set up blueprints
-			self.search = Blueprint('search', __name__, url_prefix='/search') # Search Route
-			self.share = Blueprint('share', __name__, url_prefix='/share') # Share Route
+			# Automatically up blueprints
+			for blueprint in self.BLUEPRINTS:
+				self.__setattr__(blueprint) = Blueprint(blueprint, __name__, url_prefix=f"/{blueprint}")
 
 
 	def registerBlueprints(self) -> None:
