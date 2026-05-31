@@ -17,6 +17,8 @@ class Config:
 	BREVO_EMAIL = getenv('BREVO_EMAIL', '')
 	BREVO_KEY = getenv('BREVO_API_KEY', '')
 
+	BREVO_NAME = 'No-Reply'
+
 
 	# Security
 	RANDOM_SALT = getenv('RANDOM_SALT', 'please_set_this')

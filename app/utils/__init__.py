@@ -2,6 +2,8 @@
 
 from hashlib import sha256
 
+from app.utils.emailer import Emailer
+
 
 def hash(txt: str) -> str:
 	"""
