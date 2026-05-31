@@ -1,4 +1,8 @@
 from brevo import Brevo
+from brevo.transactional_emails import (
+    SendTransacEmailRequestSender,
+    SendTransacEmailRequestToItem,
+)
 from flask import current_app
 
 
@@ -23,3 +27,27 @@ class Emailer:
 			self.name = current_app.config["BREVO_NAME"]
 
 			self._client = Brevo(api_key=key)
+
+
+	def sendEmail(self, name: str, recipient: str, subj: str, content: str) -> None:
+		"""
+		Send email from the configured Brevo client to the recipient given the relevant info
+		"""
+
+		self._client.transactional_emails.send_transac_email(
+			html_content=content,
+
+			sender=SendTransacEmailRequestSender(
+				email=self.email,
+				name=self.name,
+			),
+
+			subject=subj,
+			
+			to=[
+				SendTransacEmailRequestToItem(
+					email=recipient,
+					name=name,
+				)
+			],
+		)

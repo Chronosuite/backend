@@ -117,7 +117,8 @@ class db:
 		# User Tables
 		createTable('users', """
 				id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-				email_hidden VARCHAR(10) NOT NULL,
+				name VARCHAR(3000) NOT NULL,
+			  	email_hidden VARCHAR(10) NOT NULL,
 				email_hash CHAR(64) NOT NULL,
 				pass CHAR(64) NOT NULL,
 				plan VARCHAR(9) CHECK (plan IN ('init', 'free', 'trial', 'pro', 'unlimited')) NOT NULL DEFAULT 'free',
