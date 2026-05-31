@@ -32,6 +32,9 @@ class db:
 				database=parsed_url.path.lstrip("/"),
 			)
 
+			# Init DB
+			self.initializeDB()
+
 
 	def get_connection(self):
 		"""Get a connection from the pool."""
