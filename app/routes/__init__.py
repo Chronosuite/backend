@@ -2,3 +2,5 @@
 from app.routes.account import *
 from app.routes.calendar import *
 from app.routes.tasks import *
+
+from app.routes.routeManager import RouteManager

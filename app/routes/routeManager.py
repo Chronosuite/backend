@@ -1,5 +1,6 @@
 from flask import Blueprint, Flask
 from flask_cors import CORS
+from app.models.database import db
 
 
 class RouteManager:
@@ -32,6 +33,11 @@ class RouteManager:
 
 			# Load configuration
 			self.index.config.from_object('config.Config')
+
+			# Install PostGreSQL extensions onto DB
+			db().modify("""
+				CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+			""")
 
 			# Automatically up blueprints
 			for blueprint in self.BLUEPRINTS:
