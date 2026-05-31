@@ -1,12 +1,12 @@
 services:
   db:
     image: postgres:16-alpine
-    container_name: calendar_db
+    container_name: chronosuite_db
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: test
-      POSTGRES_DB: flask_app
+      POSTGRES_PASSWORD: db_password
+      POSTGRES_DB: chronosuite
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./db:/docker-entrypoint-initdb.d
@@ -20,14 +20,13 @@ services:
 
   web:
     build: .
-    container_name: flask_app
+    container_name: chronosuite_flask
     restart: unless-stopped
     environment:
-      FLASK_APP: app.py
-      FLASK_ENV: development
-      FLASK_DEBUG: "1"
-      DATABASE_URL: postgresql://postgres:test@db:5432/flask_app
-      SECRET_KEY: test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: db_password
+      POSTGRES_DB: chronosuite
+      RANDOM_SALT: change_to_long_salt
     ports:
       - "5000:5000"
     depends_on:
