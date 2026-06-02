@@ -56,12 +56,20 @@ def sendCode(name: str, uuid: str, email: str) -> None:
 
 
 # Check OTP Code
-def checkCode(uuid: str, code: str) -> None:
+def checkCode(uuid: str, code: str) -> bool:
 	"""
 	Check OTP code against database
 	"""
 
 	delOldCodes()
+
+	# Search database for match
+	check = db().fetch(f"""
+		SELECT id FROM otp_codes
+		WHERE user='{uuid}' AND code_num='{hash(code)}';
+	""")
+
+	return not (len(check) == 0)
 
 
 # Delete old codes
