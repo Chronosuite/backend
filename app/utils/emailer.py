@@ -5,6 +5,8 @@ from brevo.transactional_emails import (
 )
 from flask import current_app
 
+from app.utils.exceptions import FailedEmail
+
 
 class Emailer:
 	_instance = None
@@ -34,20 +36,24 @@ class Emailer:
 		Send email from the configured Brevo client to the recipient given the relevant info
 		"""
 
-		self._client.transactional_emails.send_transac_email(
-			html_content=content,
+		try:
+			self._client.transactional_emails.send_transac_email(
+				html_content=content,
 
-			sender=SendTransacEmailRequestSender(
-				email=self.email,
-				name=self.name,
-			),
+				sender=SendTransacEmailRequestSender(
+					email=self.email,
+					name=self.name,
+				),
 
-			subject=subj,
+				subject=subj,
+				
+				to=[
+					SendTransacEmailRequestToItem(
+						email=recipient,
+						name=name,
+					)
+				],
+			)
 			
-			to=[
-				SendTransacEmailRequestToItem(
-					email=recipient,
-					name=name,
-				)
-			],
-		)
+		except Exception as e:
+			raise FailedEmail(str(e))
