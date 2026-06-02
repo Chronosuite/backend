@@ -198,3 +198,12 @@ class db:
 			  	agent CHAR(64) NOT NULL,
 				created TIMESTAMP NOT NULL DEFAULT NOW()
 			""")
+		
+
+		# Password Reset
+		createTable('pass_reset', """
+				id SERIAL PRIMARY KEY,
+			  	user UUID REFERENCES users(id) ON DELETE CASCADE,
+			  	code CHAR(64) NOT NULL,
+			  	created TIMESTAMP NOT NULL DEFAULT NOW()
+			""")
