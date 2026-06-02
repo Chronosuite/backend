@@ -26,3 +26,4 @@ class Config:
 
 	# Other
 	FORCE_RESTART_SQL = False
+	ASSETS_FOLDER = './assets'
