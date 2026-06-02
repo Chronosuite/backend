@@ -26,4 +26,4 @@ class Task:
 		self.parentTask: 'Task' = parentTask
 
 		# Set attributes to be set later
-		self.taskEvents: list[Event] = []
+		self.taskEvents: list[int] = [] # Links to IDs

@@ -15,4 +15,4 @@ class TaskCategory:
 		self.archived: bool = archived
 
 		# Set default attributes to be changed later
-		self.tasks: list[Task] = []
+		self.tasks: list[int] = [] # Links to IDs

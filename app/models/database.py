@@ -138,7 +138,7 @@ class db:
 		createTable('cal_events', """
 				id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 			  	calendar int REFERENCES cal(id) ON DELETE CASCADE,
-				name VARCHAR(5000) NOT NULL,
+			 	name VARCHAR(5000) NOT NULL,
 			  	descr VARCHAR(1000000) NOT NULL DEFAULT '',
 			  	starttime TIMESTAMP NOT NULL,
 			  	endtime TIMESTAMP NOT NULL,

@@ -1,6 +1,3 @@
-from app.models.classes.event import Event
-
-
 class Calendar:
 	def __init__(self, id: int, name: str, ownerID: str, color: str) -> None:
 		"""
@@ -14,5 +11,5 @@ class Calendar:
 		self.color: str = color
 
 		# Set default attributes to be changed later
-		self.events: list[Event] = []
+		self.events: list[int] = [] # List of IDs
 		self.members: list[str] = [] # links to UUID of users
