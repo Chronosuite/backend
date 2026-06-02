@@ -28,6 +28,10 @@ class EmailAlreadyRegistered(Exception):
 	"""The email is already registered to another user"""
 
 
+class EmailNotRegistered(Exception):
+	"""The email is not registered to any user"""
+
+
 class WrongCredentials(Exception):
 	"""Given credentials does not match any recorded user credentials"""
 
