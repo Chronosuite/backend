@@ -1,3 +1,6 @@
+from urllib.parse import quote, unquote
+import re
+
 from app.models.database import db
 from app.utils import hash, hideEmail, saltPassword, checkPasswordFormat
 from app.utils.exceptions import EmailAlreadyRegistered, InvalidPassword
@@ -49,7 +52,7 @@ def registerUser(name: str, email: str, password: str) -> str:
 	uuid = db().modifyAndReturn(f"""
 		INSERT INTO users (name, email_hidden, email_hash, pass)
 		VALUES (
-					'{name}',
+					'{re.sub(r'[^A-Za-z\s]', '', name)}',
 					'{hideEmail(email)}',
 					'{hash(email)}',
 					'{hash(saltPassword(password, email))}'
