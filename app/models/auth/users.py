@@ -1,6 +1,6 @@
 from app.models.database import db
-from app.utils import hash, hideEmail, saltPassword
-from app.utils.exceptions import EmailAlreadyRegistered
+from app.utils import hash, hideEmail, saltPassword, checkPasswordFormat
+from app.utils.exceptions import EmailAlreadyRegistered, InvalidPassword
 
 
 # Determine if user credentials match database
@@ -31,6 +31,10 @@ def registerUser(name: str, email: str, password: str) -> str:
 
 	Returns UUID
 	"""
+
+	# Check password validity
+	if checkPasswordFormat(password) == False:
+		raise InvalidPassword()
 
 	# Determine if email already registered
 	registered = db().fetch(f"""

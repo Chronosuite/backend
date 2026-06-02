@@ -74,3 +74,14 @@ def saltPassword(password: str, email: str) -> str:
 	"""
 
 	return password + email + current_app.config['RANDOM_SALT']
+
+
+def checkPasswordFormat(password: str) -> bool:
+	"""
+	Determine if password meets password conditions
+
+	Conditions:
+	- More than 8 characters long
+	- Mix of numbers, symbols, letters
+	- Letters include both capital and lower-case
+	"""

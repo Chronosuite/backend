@@ -5,6 +5,10 @@ class FailedEmail(Exception):
 	"""Failed to send email to given email address"""
 
 
+class InvalidPassword(Exception):
+	"""Password does not meet password requirements"""
+
+
 class WrongOTP(Exception):
 	"""OTP Code is wrong"""
 
@@ -34,6 +38,10 @@ class EmailNotRegistered(Exception):
 
 class WrongCredentials(Exception):
 	"""Given credentials does not match any recorded user credentials"""
+
+
+class InvalidPasswordResetRequest(Exception):
+	"""Password reset request is invalid"""
 
 
 class RequestBodyException(Exception):
