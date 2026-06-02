@@ -14,7 +14,7 @@ def createSession(agent: str, uid: str) -> str:
 	# Create session
 	id = db().modifyAndReturn(f"""
 		INSERT INTO sessions (user, agent),
-		VALUES ({uid}, {hash(agent)})
+		VALUES ('{uid}', '{hash(agent)}')
 		RETURNING id;
 	""")[0]
 
@@ -43,12 +43,12 @@ def getSession(sessID: str) -> dict | None:
 	# Fetch info
 	uid = db().fetch(f"""
 		SELECT user FROM sessions
-		WHERE (id={sessID});
+		WHERE (id='{sessID}');
 	""")
 
 	user = db().fetch(f"""
 		SELECT id, name, email_hidden, plan, plan_date, created FROM users
-		WHERE (id={uid});
+		WHERE (id='{uid}');
 	""")
 
 	# Process data
