@@ -14,7 +14,7 @@ def createSession(agent: str, uid: str) -> str:
 
 	# Create session
 	id = db().modifyAndReturn(f"""
-		INSERT INTO sessions (user, agent),
+		INSERT INTO sessions (user, agent)
 		VALUES ('{uid}', '{hash(agent)}')
 		RETURNING id;
 	""")[0]

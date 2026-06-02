@@ -43,13 +43,13 @@ def registerUser(name: str, email: str, password: str) -> str:
 	
 	# Register user to database
 	db().modify(f"""
-		INSERT INTO users (name, email_hidden, email_hash, pass),
+		INSERT INTO users (name, email_hidden, email_hash, pass)
 		VALUES (
 					'{name}',
 					'{hideEmail(email)}',
 					'{hash(email)}',
 					'{hash(saltPassword(password, email))}'
-			 	)
+			 	);
 	""")
 
 
