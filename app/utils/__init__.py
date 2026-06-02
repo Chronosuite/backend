@@ -16,7 +16,7 @@ def hash(txt: str) -> str:
 
 def checkStructure(structure: dict[str], content: dict[str], path: str = "") -> dict[str]:
 	"""
-	Recursive helper function to check the structure
+	Recursive helper function to check the structure of requests
 	"""
 
 	if isinstance(content, dict):
@@ -47,3 +47,21 @@ def checkStructure(structure: dict[str], content: dict[str], path: str = "") -> 
 				checkStructure(check, item, item_path)
 	
 	return content
+
+
+def hideEmail(email: str) -> str:
+	"""
+	Converts most characters of the email into * to hide it
+	"""
+
+	domain = email[email.find('@')+1:] # Get domain part of email
+
+	# Get characters
+	firstChar = email[0]
+	lastChar = email[email.find('@')-1]
+
+	firstDomainChar = domain[0]
+	lastDomainChar = domain[-1]
+
+	# Return hidden
+	return f'{firstChar}*******{lastChar}@{firstDomainChar}***{lastDomainChar}'
