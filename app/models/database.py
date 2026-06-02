@@ -137,9 +137,12 @@ class db:
 		
 		createTable('cal_events', """
 				id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-			  	calendar UUID REFERENCES cal(id) ON DELETE CASCADE,
+			  	calendar int REFERENCES cal(id) ON DELETE CASCADE,
 				name VARCHAR(5000) NOT NULL,
 			  	descr VARCHAR(1000000) NOT NULL DEFAULT '',
+			  	starttime TIMESTAMP NOT NULL,
+			  	endtime TIMESTAMP NOT NULL,
+			  	all_day BOOLEAN NOT NULL DEFAULT false,
 			  	linked_task INT REFERENCES tasks(id) ON DELETE CASCADE
 			""") # For events
 
@@ -167,15 +170,9 @@ class db:
 		
 
 		# Share/Many-To-Many Tables
-		createTable('tasks_share', """
+		createTable('tasks_category_share', """
 				id SERIAL PRIMARY KEY,
-			  	tasks INT REFERENCES cal(id) ON DELETE CASCADE,
-			  	user UUID REFERENCES users(id) ON DELETE CASCADE
-			""")
-		
-		createTable('tasks_categories_share', """
-				id SERIAL PRIMARY KEY,
-			  	category INT REFERENCES tasks_categories(id) ON DELETE CASCADE,
+			  	task_category INT REFERENCES tasks_categories(id) ON DELETE CASCADE,
 			  	user UUID REFERENCES users(id) ON DELETE CASCADE
 			""")
 		
