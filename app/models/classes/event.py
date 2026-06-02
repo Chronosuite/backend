@@ -5,7 +5,7 @@ class Event:
 	def __init__(self, 
 				name: str, 
 				desc: str, 
-				ownerID: str, 
+				calID: str, 
 				startTime: datetime, 
 				endTime: datetime, 
 				allDay: bool,
@@ -17,7 +17,7 @@ class Event:
 		# Set attributes
 		self.name: str = name
 		self.desc: str = desc
-		self.ownerID: str = ownerID
+		self.calID: str = calID
 		self.startTime: datetime = startTime
 		self.endTime: datetime = endTime
 		self.allDay = allDay
