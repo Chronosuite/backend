@@ -4,7 +4,7 @@ from app.utils.exceptions import ExpiredSession, NeedOTP
 
 
 # Create new login session
-def createSession(agent: str, uid: str, needOTP: bool = False) -> str:
+def createSession(agent: str, uid: str) -> str:
 	"""
 	Create a new login session
 	"""
@@ -14,8 +14,8 @@ def createSession(agent: str, uid: str, needOTP: bool = False) -> str:
 
 	# Create session
 	id = db().modifyAndReturn(f"""
-		INSERT INTO sessions (user, agent, need_otp),
-		VALUES ('{uid}', '{hash(agent)}', '{str(needOTP).lower()}')
+		INSERT INTO sessions (user, agent),
+		VALUES ('{uid}', '{hash(agent)}')
 		RETURNING id;
 	""")[0]
 
@@ -43,7 +43,7 @@ def getSession(sessID: str) -> dict | None:
 
 	# Fetch info
 	uid = db().fetch(f"""
-		SELECT user, need_otp FROM sessions
+		SELECT user FROM sessions
 		WHERE (id='{sessID}');
 	""")
 
@@ -51,40 +51,27 @@ def getSession(sessID: str) -> dict | None:
 	if len(uid) == 0:
 		raise ExpiredSession()
 	
-	# Determine if need OTP code
-	elif str(uid[0][1]).lower() == 'true':
-		raise NeedOTP()
-
 	# Get user info
 	user = db().fetch(f"""
-		SELECT id, name, email_hidden, plan, plan_date, created FROM users
+		SELECT id, name, email_hidden, email_verified, plan, plan_date, created FROM users
 		WHERE (id='{uid[0][0]}');
 	""")
+
+	# Determine if need OTP code/email verification
+	if str(user[3]).lower() == 'true':
+		raise NeedOTP()
 
 	# Process data
 	userInfo = {
 		'id': user[0],
 		'name': user[1],
 		'email': user[2],
-		'plan': user[3],
-		'planDate': user[4],
-		'date': user[5]
+		'plan': user[4],
+		'planDate': user[5],
+		'date': user[6]
 	}
 
 	return userInfo
-
-
-# OTP Confirm Session
-def confirmSession(sessID: str) -> None:
-	"""
-	Set the need_otp property to False for a sessionID
-	"""
-
-	db().modify(f"""
-		UPDATE sessions
-		SET need_otp = 'true'
-		WHERE id='{sessID}';
-	""")
 
 
 # Delete old sessions

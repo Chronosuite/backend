@@ -120,8 +120,9 @@ class db:
 				name VARCHAR(3000) NOT NULL,
 			  	email_hidden CHAR(15) NOT NULL,
 				email_hash CHAR(64) NOT NULL,
-				pass CHAR(64) NOT NULL,
-				plan VARCHAR(9) CHECK (plan IN ('init', 'free', 'trial', 'pro', 'unlimited')) NOT NULL DEFAULT 'free',
+				email_verified BOOLEAN NOT NULL DEFAULT false,
+			  	pass CHAR(64) NOT NULL,
+				plan VARCHAR(9) CHECK (plan IN ('free', 'trial', 'pro', 'unlimited')) NOT NULL DEFAULT 'free',
 				plan_date TIMESTAMP NOT NULL DEFAULT NOW(),
 			  	created TIMESTAMP NOT NULL DEFAULT NOW()
 			""")
@@ -195,6 +196,5 @@ class db:
 				id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 				user UUID REFERENCES users(id) ON DELETE CASCADE,
 			  	agent CHAR(64) NOT NULL,
-			  	need_otp BOOLEAN NOT NULL DEFAULT false,
 				created TIMESTAMP NOT NULL DEFAULT NOW()
 			""")

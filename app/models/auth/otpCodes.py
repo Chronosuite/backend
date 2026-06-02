@@ -3,7 +3,7 @@ import secrets
 from flask import current_app
 
 from app.models.database import db
-from app.models.auth.sessions import confirmSession
+from app.models.auth.users import validateEmail
 from app.utils import hash, Emailer
 from app.utils.exceptions import OTPAlreadySent, OTPWrongSession
 
@@ -90,7 +90,7 @@ def checkCode(sessID: str, uuid: str, code: str) -> bool:
 			raise OTPWrongSession()
 
 		# Register session
-		confirmSession(session[0][0])
+		validateEmail(uuid)
 
 		return True
 	else:

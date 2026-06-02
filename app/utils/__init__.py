@@ -1,6 +1,7 @@
 # Basic Functions
 
 from hashlib import sha256
+from flask import current_app
 
 from app.utils.emailer import Emailer
 from app.utils.exceptions import RequestBodyException
@@ -65,3 +66,11 @@ def hideEmail(email: str) -> str:
 
 	# Return hidden
 	return f'{firstChar}*******{lastChar}@{firstDomainChar}***{lastDomainChar}'
+
+
+def saltPassword(password: str, email: str) -> str:
+	"""
+	Salt the password and return the salted password
+	"""
+
+	return password + email + current_app.config['RANDOM_SALT']

@@ -24,6 +24,10 @@ class ExpiredSession(Exception):
 	"""Session does not exist or has been expired"""
 
 
+class EmailAlreadyRegistered(Exception):
+	"""The email is already registered to another user"""
+
+
 class WrongCredentials(Exception):
 	"""Given credentials does not match any recorded user credentials"""
 
