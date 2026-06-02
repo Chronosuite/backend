@@ -27,3 +27,5 @@ class Config:
 	# Other
 	FORCE_RESTART_SQL = False
 	ASSETS_FOLDER = './assets'
+
+	FRONTEND_URL = 'https://chronosuite.net'
