@@ -8,6 +8,10 @@ def createSession(agent: str, uid: str) -> str:
 	Create a new login session
 	"""
 
+	# Refresh old sessions
+	delOldSession()
+
+	# Create session
 	id = db().modifyAndReturn(f"""
 		INSERT INTO sessions (user, agent),
 		VALUES ({uid}, {hash(agent)})
@@ -33,6 +37,10 @@ def getSession(sessID: str) -> dict | None:
 	}
 	"""
 
+	# Refresh old sessions
+	delOldSession()
+
+	# Fetch info
 	uid = db().fetch(f"""
 		SELECT user FROM sessions
 		WHERE (id={sessID});
@@ -54,3 +62,15 @@ def getSession(sessID: str) -> dict | None:
 	}
 
 	return userInfo
+
+
+# Delete old sessions
+def delOldSession() -> None:
+	"""
+	Delete expired sessions
+	"""
+
+	db().modify("""
+		DELETE FROM sessions
+		WHERE created < NOW() - INTERVAL '30 days';
+	""")
