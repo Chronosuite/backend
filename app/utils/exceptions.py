@@ -11,3 +11,7 @@ class WrongOTP(Exception):
 
 class WrongCredentials(Exception):
 	"""Given credentials does not match any recorded user credentials"""
+
+
+class RequestBodyException(Exception):
+	"""Error with the request body"""

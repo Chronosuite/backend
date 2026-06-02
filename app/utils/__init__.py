@@ -3,6 +3,7 @@
 from hashlib import sha256
 
 from app.utils.emailer import Emailer
+from app.utils.exceptions import RequestBodyException
 
 
 def hash(txt: str) -> str:
@@ -11,3 +12,38 @@ def hash(txt: str) -> str:
 	"""
 
 	return sha256(txt.encode('utf-8')).hexdigest()
+
+
+def checkStructure(structure: dict[str], content: dict[str], path: str = "") -> dict[str]:
+	"""
+	Recursive helper function to check the structure
+	"""
+
+	if isinstance(content, dict):
+		for key, value in structure.items():
+			full_key = f"{path}.{key}" if path else key
+			if key not in content:
+				raise RequestBodyException(f'Missing {full_key} parameter in body.')
+			
+			if type(value) != type(content[key]):
+				raise RequestBodyException(f'Wrong data type for {full_key}. Expected {type(value).__name__}')
+			
+			if isinstance(value, (dict, list)):
+				checkStructure(value, content[key], full_key)
+
+	elif isinstance(content, list):
+		if len(structure) == 0:
+			return  # Allow empty list template, no further type checking
+		
+		check = structure[0]
+		check_type = type(check)
+		
+		for i, item in enumerate(content):
+			item_path = f"{path}[{i}]"
+			if type(item) != check_type:
+				raise RequestBodyException(f'Wrong data type for {item_path}. Expected {check_type.__name__}')
+			
+			if isinstance(check, (dict, list)):
+				checkStructure(check, item, item_path)
+	
+	return content
