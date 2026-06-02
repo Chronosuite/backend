@@ -3,7 +3,7 @@ import os
 import secrets
 
 from app.models.database import db
-from app.utils import hash, Emailer, checkPasswordFormat
+from app.utils import hash, Emailer, checkPasswordFormat, validateEmail
 from app.utils.exceptions import EmailNotRegistered, InvalidPassword, InvalidPasswordResetRequest
 
 
@@ -13,12 +13,13 @@ def requestPassReset(email: str) -> None:
 	Request password reset to email by sending email w/ link
 	"""
 
+	validateEmail()
 	delOldRequests()
 
 	# Determine if email is registered
 	registered = db().fetch(f"""
 		SELECT id, name FROM users
-		WHERE email_hash='{hash(email)}';
+		WHERE email='{email}';
 	""")
 
 	if len(registered) == 0:
