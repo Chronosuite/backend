@@ -131,28 +131,33 @@ class db:
 		# Calendar Tables
 		createTable('cal', """
 				id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-				owner UUID REFERENCES users(id) ON DELETE CASCADE
+			  	name VARCHAR(1500) NOT NULL,
+				owner UUID REFERENCES users(id) ON DELETE CASCADE,
+			  	color CHAR(6) NOT NULL
 			""") # For calendar
 		
 		createTable('cal_events', """
 				id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-				email VARCHAR(254) NOT NULL
+			  	calendar UUID REFERENCES cal(id) ON DELETE CASCADE,
+				name VARCHAR(5000) NOT NULL,
+			  	descr VARCHAR(1000000) NOT NULL DEFAULT '',
+			  	emails VARCHAR() NOT NULL
 			""") # For events
 
 
 		# Tasks Tables
-		createTable('tasks', """
-				id SERIAL PRIMARY KEY,
-			  	name VARCHAR(5000) NOT NULL,
-			  	descr VARCHAR(100000) NOT NULL,
-			  	category INT REFERENCES tasks_categories(id) ON DELETE CASCADE
-			""")
-		
 		createTable('tasks_categories', """
 				id SERIAL PRIMARY KEY,
 				label VARCHAR(2500) NOT NULL,
 			  	color CHAR(6) NOT NULL,
 			  	owner UUID REFERENCES users(id) ON DELETE CASCADE
+			""")
+		
+		createTable('tasks', """
+				id SERIAL PRIMARY KEY,
+			  	name VARCHAR(5000) NOT NULL,
+			  	descr VARCHAR(100000) NOT NULL,
+			  	category INT REFERENCES tasks_categories(id) ON DELETE CASCADE
 			""")
 		
 
@@ -178,7 +183,7 @@ class db:
 		createTable('cal_events_share', """
 				id SERIAL PRIMARY KEY,
 			  	event INT REFERENCES cal_events(id) ON DELETE CASCADE,
-			  	user UUID REFERENCES users(id) ON DELETE CASCADE
+			  	email VARCHAR(254) NOT NULL
 			""")
 
 
