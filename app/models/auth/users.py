@@ -1,7 +1,7 @@
 import re
 
 from app.models.database import db
-from app.utils import hash, hideEmail, saltPassword, checkPasswordFormat
+from app.utils import hash, saltPassword, checkPasswordFormat, validateEmail
 from app.utils.exceptions import EmailAlreadyRegistered, InvalidPassword
 
 
@@ -12,10 +12,12 @@ def checkLogin(email: str, password: str) -> str | None:
 	Returns UID if true, otherwise returns None
 	"""
 
+	validateEmail(email)
+
 	# Check DB for credentials
 	user = db().fetch(f"""
 			SELECT id FROM users 
-			WHERE email='{hash(email)}' AND password='{hash(saltPassword(password, email))}';
+			WHERE email='{email}' AND password='{hash(saltPassword(password, email))}';
 		""")
 	
 	# Check if exists
@@ -34,6 +36,8 @@ def registerUser(name: str, email: str, password: str) -> str:
 	Returns UUID
 	"""
 
+	validateEmail(email)
+
 	# Check password validity
 	if checkPasswordFormat(password) == False:
 		raise InvalidPassword()
@@ -41,7 +45,7 @@ def registerUser(name: str, email: str, password: str) -> str:
 	# Determine if email already registered
 	registered = db().fetch(f"""
 		SELECT id FROM users
-		WHERE email='{hash(email)}';				 
+		WHERE email='{email}';				 
 	""")
 
 	if len(registered) != 0:
@@ -49,11 +53,10 @@ def registerUser(name: str, email: str, password: str) -> str:
 	
 	# Register user to database
 	uuid = db().modifyAndReturn(f"""
-		INSERT INTO users (name, email_hidden, email_hash, pass)
+		INSERT INTO users (name, email, pass)
 		VALUES (
 					'{re.sub(r'[^A-Za-z\s]', '', name)}',
-					'{hideEmail(email)}',
-					'{hash(email)}',
+					'{email}',
 					'{hash(saltPassword(password, email))}'
 			 	)
 		RETURNING id;

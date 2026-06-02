@@ -53,12 +53,12 @@ def getSession(sessID: str) -> dict | None:
 	
 	# Get user info
 	user = db().fetch(f"""
-		SELECT id, name, email_hidden, email_verified, plan, plan_date, created FROM users
+		SELECT id, name, email, plan, plan_date, created, email_verified FROM users
 		WHERE (id='{uid[0][0]}');
 	""")
 
 	# Determine if need OTP code/email verification
-	if str(user[3]).lower() == 'true':
+	if str(user[6]).lower() == 'true':
 		raise NeedOTP()
 
 	# Process data
@@ -66,9 +66,9 @@ def getSession(sessID: str) -> dict | None:
 		'id': user[0],
 		'name': user[1],
 		'email': user[2],
-		'plan': user[4],
-		'planDate': user[5],
-		'date': user[6]
+		'plan': user[3],
+		'planDate': user[4],
+		'date': user[5]
 	}
 
 	return userInfo
