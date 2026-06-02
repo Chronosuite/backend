@@ -1,6 +1,7 @@
 from flask import jsonify, request
 
 from app.routes.routeManager import RouteManager
+from app.models.auth import users, sessions
 from app.utils import checkStructure
 from app.utils.exceptions import RequestBodyException
 
@@ -16,7 +17,7 @@ def login() -> None:
 	# Process Request
 	SAMPLE_REQUEST_DATA = {
 		'email': 'example@gmail.com',
-		'pass': 'password hash'
+		'pass': 'password hash' # Hashed client-side
 	}
 
 	# Parse request
@@ -32,4 +33,24 @@ def login() -> None:
 	usrPass = body['pass']
 	usrEmail = hash(body['email'])
 
-	#
+	# Get user agent
+	agent = request.headers.get('User-Agent')
+
+	# Check credentials
+	uid = users.checkLogin(usrEmail, usrPass)
+
+	if uid != None:
+		# Create session
+		sessID = sessions.createSession(agent, uid)
+	else:
+		# Return failed to login error
+		return jsonify({
+				'status': 'error',
+				'message': 'Login credentials incorrect.'
+			}), 401
+	
+	# Return session ID
+	return jsonify({
+			'status': 'success',
+			'session': sessID
+		}), 200
