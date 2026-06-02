@@ -13,6 +13,8 @@ def requestPassReset(email: str) -> None:
 	Request password reset to email by sending email w/ link
 	"""
 
+	delOldRequests()
+
 	# Determine if email is registered
 	registered = db().fetch(f"""
 		SELECT id, name FROM users
@@ -64,6 +66,8 @@ def resetPassword(token: str, password: str) -> None:
 	Change the user's password to given password
 	"""
 
+	delOldRequests()
+
 	# Validate password
 	if checkPasswordFormat(password) == False:
 		raise InvalidPassword()
@@ -89,3 +93,15 @@ def resetPassword(token: str, password: str) -> None:
 		DELETE FROM pass_reset
 		WHERE user='{user[0][0]}';
 	""") 
+
+
+# Delete old password reset requests
+def delOldRequests() -> None:
+	"""
+	Delete old password reset request tokens
+	"""
+
+	db().modify("""
+		DELETE FROM pass_reset
+		WHERE created < NOW() - INTERVAL '1 hour';
+	""")
