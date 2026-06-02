@@ -9,6 +9,10 @@ class InvalidPassword(Exception):
 	"""Password does not meet password requirements"""
 
 
+class InvalidEmail(Exception):
+	"""Email is of an invalid format"""
+
+
 class WrongOTP(Exception):
 	"""OTP Code is wrong"""
 

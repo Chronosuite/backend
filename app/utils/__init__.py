@@ -2,9 +2,10 @@
 
 from hashlib import sha256
 from flask import current_app
+import re
 
 from app.utils.emailer import Emailer
-from app.utils.exceptions import RequestBodyException
+from app.utils.exceptions import RequestBodyException, InvalidEmail
 
 
 def hash(txt: str) -> str:
@@ -85,3 +86,13 @@ def checkPasswordFormat(password: str) -> bool:
 	- Mix of numbers, symbols, letters
 	- Letters include both capital and lower-case
 	"""
+
+
+def validateEmail(email: str) -> None:
+	"""
+	Ensure email is in the correct format
+	If not, raise exception
+	"""
+
+	if not re.match(r"^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$", email):
+		raise InvalidEmail()
