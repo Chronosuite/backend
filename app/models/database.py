@@ -194,5 +194,6 @@ class db:
 		createTable('sessions', """
 				id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 				user UUID REFERENCES users(id) ON DELETE CASCADE,
+			  	agent VARCHAR(5000) NOT NULL,
 				created TIMESTAMP NOT NULL DEFAULT NOW()
 			""")
