@@ -1,5 +1,6 @@
 from app.models.database import db
 from app.utils import hash
+from app.utils.exceptions import ExpiredSession
 
 
 # Create new login session
@@ -46,9 +47,14 @@ def getSession(sessID: str) -> dict | None:
 		WHERE (id='{sessID}');
 	""")
 
+	# Check if session exists
+	if len(uid) == 0:
+		raise ExpiredSession()
+
+	# Get user info
 	user = db().fetch(f"""
 		SELECT id, name, email_hidden, plan, plan_date, created FROM users
-		WHERE (id='{uid}');
+		WHERE (id='{uid[0][0]}');
 	""")
 
 	# Process data

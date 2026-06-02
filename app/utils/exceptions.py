@@ -16,6 +16,13 @@ class OTPAlreadySent(Exception):
 class OTPWrongDevice(Exception):
 	"""OTP code was entered from wrong device"""
 
+class NeedOTP(Exception):
+	"""OTP code is needed for login"""
+
+
+class ExpiredSession(Exception):
+	"""Session does not exist or has been expired"""
+
 
 class WrongCredentials(Exception):
 	"""Given credentials does not match any recorded user credentials"""
