@@ -21,12 +21,22 @@ def createSession(agent: str, uid: str) -> str:
 def getSession(sessID: str) -> dict | None:
 	"""
 	Return user info about session given id
+
+	Returns it in dictionary format:
+	userInfo = {
+		'id'
+		'name'
+		'email'
+		'plan'
+		'planDate'
+		'date'
+	}
 	"""
 
 	uid = db().fetch(f"""
-			SELECT user FROM sessions
-			WHERE (id={sessID});
-		""")
+		SELECT user FROM sessions
+		WHERE (id={sessID});
+	""")
 
 	user = db().fetch(f"""
 		SELECT id, name, email_hidden, plan, plan_date, created FROM users
