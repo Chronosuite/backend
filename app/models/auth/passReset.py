@@ -3,8 +3,8 @@ import os
 import secrets
 
 from app.models.database import db
-from app.utils import hash, Emailer
-from app.utils.exceptions import EmailNotRegistered
+from app.utils import hash, Emailer, checkPasswordFormat
+from app.utils.exceptions import EmailNotRegistered, InvalidPassword, InvalidPasswordResetRequest
 
 
 # Send an email with a link for password reset
@@ -56,3 +56,36 @@ def requestPassReset(email: str) -> None:
 
 	# Send email
 	Emailer().sendEmail(name, email, 'Password Reset Request Link', content)
+
+
+# Actually change password
+def resetPassword(token: str, password: str) -> None:
+	"""
+	Change the user's password to given password
+	"""
+
+	# Validate password
+	if checkPasswordFormat(password) == False:
+		raise InvalidPassword()
+	
+	# Attempt to retrieve connected UUID
+	user = db().fetch(f"""
+		SELECT user FROM pass_reset
+		WHERE code='{hash(token)}';
+	""")
+
+	if len(user) == 0:
+		raise InvalidPasswordResetRequest()
+	
+	# Change user's password
+	db().modify(f"""
+		UPDATE users
+		SET pass='{hash(password)}'
+		WHERE id='{user[0][0]}';
+	""")
+
+	# Clear password reset requests
+	db().modify(f"""
+		DELETE FROM pass_reset
+		WHERE user='{user[0][0]}';
+	""") 
