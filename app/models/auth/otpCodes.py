@@ -3,6 +3,7 @@ import secrets
 from flask import current_app
 
 from app.models.database import db
+from app.models.auth.sessions import createSession
 from app.utils import hash, Emailer
 from app.utils.exceptions import OTPAlreadySent, OTPWrongDevice
 
@@ -56,27 +57,42 @@ def sendCode(name: str, uuid: str, email: str, ip: str, agent: str) -> None:
 
 
 # Check OTP Code
-def checkCode(userIP: str, userAgent: str, uuid: str, code: str) -> bool:
+def checkCode(userIP: str, userAgent: str, uuid: str, code: str) -> None | str:
 	"""
 	Check OTP code against database
+
+	If valid, register session and return session ID
 	"""
 
 	delOldCodes()
 
 	# Search database for match
 	check = db().fetch(f"""
-		SELECT id, ip, agent FROM otp_codes
+		SELECT ip, agent FROM otp_codes
 		WHERE user='{uuid}' AND code_num='{hash(code)}';
 	""")
 
-	# Determine if OTP code was checked from the right device
-	ip = check[1]
-	agent = check[2]
+	# Check if OTP code was correct
+	if not len(check) == 0:
+		# Determine if OTP code was checked from the right device
+		ip = check[0]
+		agent = check[1]
 
-	if hash(userIP) != ip or hash(userAgent) != agent:
-		raise OTPWrongDevice()
+		if hash(userIP) != ip or hash(userAgent) != agent:
+			raise OTPWrongDevice()
+		
+		# Clear OTP codes
+		db().modify(f"""
+			DELETE FROM otp_codes
+			WHERE user='{uuid}';
+		""")
 
-	return not (len(check) == 0)
+		# Create session ID
+		sessID = createSession(agent, uuid)
+		return sessID
+	
+	else:
+		return None
 
 
 # Delete old codes
