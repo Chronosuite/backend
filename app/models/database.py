@@ -184,8 +184,6 @@ class db:
 		# OTP Codes
 		createTable('otp_codes', """
 				id SERIAL PRIMARY KEY,
-			  	ip CHAR(64) NOT NULL,
-			  	agent CHAR(64) NOT NULL,
 				code_num CHAR(64) NOT NULL,
 				user UUID REFERENCES users(id) ON DELETE CASCADE,
 				created TIMESTAMP NOT NULL DEFAULT NOW()
@@ -196,6 +194,7 @@ class db:
 		createTable('sessions', """
 				id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 				user UUID REFERENCES users(id) ON DELETE CASCADE,
-			  	agent VARCHAR(5000) NOT NULL,
+			  	agent CHAR(64) NOT NULL,
+			  	need_otp BOOLEAN NOT NULL DEFAULT false,
 				created TIMESTAMP NOT NULL DEFAULT NOW()
 			""")

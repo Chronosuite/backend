@@ -3,13 +3,13 @@ import secrets
 from flask import current_app
 
 from app.models.database import db
-from app.models.auth.sessions import createSession
+from app.models.auth.sessions import confirmSession
 from app.utils import hash, Emailer
-from app.utils.exceptions import OTPAlreadySent, OTPWrongDevice
+from app.utils.exceptions import OTPAlreadySent, OTPWrongSession
 
 
 # Send OTP Code
-def sendCode(name: str, uuid: str, email: str, ip: str, agent: str) -> None:
+def sendCode(name: str, uuid: str, email: str) -> None:
 	"""
 	Send One-Time Password to given email
 	"""
@@ -38,8 +38,8 @@ def sendCode(name: str, uuid: str, email: str, ip: str, agent: str) -> None:
 
 		# Register new code
 		db().modify(f"""
-			INSERT INTO otp_codes (ip, agent, code_num, user)
-			VALUES ('{hash(ip)}', '{hash(agent)}', '{hash(code)}', '{uuid}');
+			INSERT INTO otp_codes (code_num, user)
+			VALUES ('{hash(code)}', '{uuid}');
 		""")
 
 	# === SEND EMAIL ===
@@ -57,42 +57,44 @@ def sendCode(name: str, uuid: str, email: str, ip: str, agent: str) -> None:
 
 
 # Check OTP Code
-def checkCode(userIP: str, userAgent: str, uuid: str, code: str) -> None | str:
+def checkCode(sessID: str, uuid: str, code: str) -> bool:
 	"""
 	Check OTP code against database
 
-	If valid, register session and return session ID
+	If valid, returns True otherwise False.
 	"""
 
 	delOldCodes()
 
 	# Search database for match
 	check = db().fetch(f"""
-		SELECT ip, agent FROM otp_codes
+		SELECT id FROM otp_codes
 		WHERE user='{uuid}' AND code_num='{hash(code)}';
 	""")
 
 	# Check if OTP code was correct
-	if not len(check) == 0:
-		# Determine if OTP code was checked from the right device
-		ip = check[0]
-		agent = check[1]
-
-		if hash(userIP) != ip or hash(userAgent) != agent:
-			raise OTPWrongDevice()
-		
+	if not len(check) == 0:		
 		# Clear OTP codes
 		db().modify(f"""
 			DELETE FROM otp_codes
 			WHERE user='{uuid}';
 		""")
 
-		# Create session ID
-		sessID = createSession(agent, uuid)
-		return sessID
-	
+		# Determine if from valid session
+		session = db().fetch(f"""
+			SELECT id FROM sessions
+			WHERE id='{sessID}' AND user='{uuid}' AND created < NOW() - INTERVAL '30 days'; 
+		""")
+
+		if len(session) == 0:
+			raise OTPWrongSession()
+
+		# Register session
+		confirmSession(session[0][0])
+
+		return True
 	else:
-		return None
+		return False
 
 
 # Delete old codes

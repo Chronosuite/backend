@@ -13,8 +13,8 @@ class OTPAlreadySent(Exception):
 	"""OTP code was already sent within 1 minute"""
 
 
-class OTPWrongDevice(Exception):
-	"""OTP code was entered from wrong device"""
+class OTPWrongSession(Exception):
+	"""OTP code was used for the wrong session"""
 
 class NeedOTP(Exception):
 	"""OTP code is needed for login"""

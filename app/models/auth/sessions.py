@@ -1,10 +1,10 @@
 from app.models.database import db
 from app.utils import hash
-from app.utils.exceptions import ExpiredSession
+from app.utils.exceptions import ExpiredSession, NeedOTP
 
 
 # Create new login session
-def createSession(agent: str, uid: str) -> str:
+def createSession(agent: str, uid: str, needOTP: bool = False) -> str:
 	"""
 	Create a new login session
 	"""
@@ -14,8 +14,8 @@ def createSession(agent: str, uid: str) -> str:
 
 	# Create session
 	id = db().modifyAndReturn(f"""
-		INSERT INTO sessions (user, agent),
-		VALUES ('{uid}', '{hash(agent)}')
+		INSERT INTO sessions (user, agent, need_otp),
+		VALUES ('{uid}', '{hash(agent)}', '{str(needOTP).lower()}')
 		RETURNING id;
 	""")[0]
 
@@ -43,13 +43,17 @@ def getSession(sessID: str) -> dict | None:
 
 	# Fetch info
 	uid = db().fetch(f"""
-		SELECT user FROM sessions
+		SELECT user, need_otp FROM sessions
 		WHERE (id='{sessID}');
 	""")
 
 	# Check if session exists
 	if len(uid) == 0:
 		raise ExpiredSession()
+	
+	# Determine if need OTP code
+	elif str(uid[0][1]).lower() == 'true':
+		raise NeedOTP()
 
 	# Get user info
 	user = db().fetch(f"""
@@ -68,6 +72,19 @@ def getSession(sessID: str) -> dict | None:
 	}
 
 	return userInfo
+
+
+# OTP Confirm Session
+def confirmSession(sessID: str) -> None:
+	"""
+	Set the need_otp property to False for a sessionID
+	"""
+
+	db().modify(f"""
+		UPDATE sessions
+		SET need_otp = 'true'
+		WHERE id='{sessID}';
+	""")
 
 
 # Delete old sessions
