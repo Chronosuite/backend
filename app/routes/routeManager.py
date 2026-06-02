@@ -7,7 +7,7 @@ class RouteManager:
 	_instance = None
 
 	BLUEPRINTS = (
-		'account',
+		'auth',
 		'calendar',
 		'tasks'
 	) 
