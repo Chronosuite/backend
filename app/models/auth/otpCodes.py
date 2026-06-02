@@ -4,6 +4,7 @@ from flask import current_app
 
 from app.models.database import db
 from app.utils import hash, Emailer
+from app.utils.exceptions import OTPAlreadySent
 
 
 # Send OTP Code
@@ -15,8 +16,33 @@ def sendCode(name: str, uuid: str, email: str) -> None:
 	# Generate 6-digit OTP code
 	code = str(secrets.randbelow(900000) + 100000)
 
+	# === REGISTER CODE ===
+	
+	# Determine if code for UUID already exists to not spam and wasn't recently sent
+	sentCodes = db().fetch(f"""
+		SELECT id FROM otp_codes
+		WHERE user='{uuid}' AND created < NOW() - INTERVAL '1 minute';
+	""")
+
+	if len(sentCodes) != 0:
+		raise OTPAlreadySent()
+	else:
+		# Delete pre-existing codes for this user
+		db().modify(f"""
+			DELETE FROM otp_codes
+			WHERE user='{uuid}';
+		""")
+
+		# Register new code
+		db().modify(f"""
+			INSERT INTO otp_codes (code_num, user)
+			VALUES ('{hash(code)}', '{uuid}');
+		""")
+
+	# === SEND EMAIL ===
+
 	# Get OTP email template
-	with open(os.path.join(current_app.config['ASSETS_FOLDER']), 'otp.html', 'r') as file:
+	with open(os.path.join(current_app.config['ASSETS_FOLDER'], 'otp.html'), 'r') as file:
 		content = file.read()
 
 	# Insert code + name

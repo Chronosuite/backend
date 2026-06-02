@@ -9,6 +9,10 @@ class WrongOTP(Exception):
 	"""OTP Code is wrong"""
 
 
+class OTPAlreadySent(Exception):
+	"""OTP code was already sent within 1 minute"""
+
+
 class WrongCredentials(Exception):
 	"""Given credentials does not match any recorded user credentials"""
 
