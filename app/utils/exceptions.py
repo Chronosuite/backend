@@ -13,6 +13,10 @@ class OTPAlreadySent(Exception):
 	"""OTP code was already sent within 1 minute"""
 
 
+class OTPWrongDevice(Exception):
+	"""OTP code was entered from wrong device"""
+
+
 class WrongCredentials(Exception):
 	"""Given credentials does not match any recorded user credentials"""
 

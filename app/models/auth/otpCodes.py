@@ -4,11 +4,11 @@ from flask import current_app
 
 from app.models.database import db
 from app.utils import hash, Emailer
-from app.utils.exceptions import OTPAlreadySent
+from app.utils.exceptions import OTPAlreadySent, OTPWrongDevice
 
 
 # Send OTP Code
-def sendCode(name: str, uuid: str, email: str) -> None:
+def sendCode(name: str, uuid: str, email: str, ip: str, agent: str) -> None:
 	"""
 	Send One-Time Password to given email
 	"""
@@ -37,8 +37,8 @@ def sendCode(name: str, uuid: str, email: str) -> None:
 
 		# Register new code
 		db().modify(f"""
-			INSERT INTO otp_codes (code_num, user)
-			VALUES ('{hash(code)}', '{uuid}');
+			INSERT INTO otp_codes (ip, agent, code_num, user)
+			VALUES ('{hash(ip)}', '{hash(agent)}', '{hash(code)}', '{uuid}');
 		""")
 
 	# === SEND EMAIL ===
@@ -56,7 +56,7 @@ def sendCode(name: str, uuid: str, email: str) -> None:
 
 
 # Check OTP Code
-def checkCode(uuid: str, code: str) -> bool:
+def checkCode(userIP: str, userAgent: str, uuid: str, code: str) -> bool:
 	"""
 	Check OTP code against database
 	"""
@@ -65,9 +65,16 @@ def checkCode(uuid: str, code: str) -> bool:
 
 	# Search database for match
 	check = db().fetch(f"""
-		SELECT id FROM otp_codes
+		SELECT id, ip, agent FROM otp_codes
 		WHERE user='{uuid}' AND code_num='{hash(code)}';
 	""")
+
+	# Determine if OTP code was checked from the right device
+	ip = check[1]
+	agent = check[2]
+
+	if hash(userIP) != ip or hash(userAgent) != agent:
+		raise OTPWrongDevice()
 
 	return not (len(check) == 0)
 

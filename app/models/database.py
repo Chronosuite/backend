@@ -184,6 +184,8 @@ class db:
 		# OTP Codes
 		createTable('otp_codes', """
 				id SERIAL PRIMARY KEY,
+			  	ip CHAR(64) NOT NULL,
+			  	agent CHAR(64) NOT NULL,
 				code_num CHAR(64) NOT NULL,
 				user UUID REFERENCES users(id) ON DELETE CASCADE,
 				created TIMESTAMP NOT NULL DEFAULT NOW()
