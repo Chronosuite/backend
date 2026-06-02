@@ -15,3 +15,32 @@ def createSession(agent: str, uid: str) -> str:
 	""")[0]
 
 	return id
+
+
+# Retrieve info about session
+def getSession(sessID: str) -> dict | None:
+	"""
+	Return user info about session given id
+	"""
+
+	uid = db().fetch(f"""
+			SELECT user FROM sessions
+			WHERE (id={sessID});
+		""")
+
+	user = db().fetch(f"""
+		SELECT id, name, email_hidden, plan, plan_date, created FROM users
+		WHERE (id={uid});
+	""")
+
+	# Process data
+	userInfo = {
+		'id': user[0],
+		'name': user[1],
+		'email': user[2],
+		'plan': user[3],
+		'planDate': user[4],
+		'date': user[5]
+	}
+
+	return userInfo
