@@ -13,6 +13,8 @@ def sendCode(name: str, uuid: str, email: str) -> None:
 	Send One-Time Password to given email
 	"""
 
+	delOldCodes()
+
 	# Generate 6-digit OTP code
 	code = str(secrets.randbelow(900000) + 100000)
 
@@ -58,3 +60,17 @@ def checkCode(uuid: str, code: str) -> None:
 	"""
 	Check OTP code against database
 	"""
+
+	delOldCodes()
+
+
+# Delete old codes
+def delOldCodes() -> None:
+	"""
+	Delete expired codes
+	"""
+
+	db().modify("""
+		DELETE FROM otp_codes
+		WHERE created < NOW() - INTERVAL '10 minutes';
+	""")
