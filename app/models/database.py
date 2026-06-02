@@ -140,7 +140,8 @@ class db:
 				id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 			  	calendar UUID REFERENCES cal(id) ON DELETE CASCADE,
 				name VARCHAR(5000) NOT NULL,
-			  	descr VARCHAR(1000000) NOT NULL DEFAULT ''
+			  	descr VARCHAR(1000000) NOT NULL DEFAULT '',
+			  	linked_task INT REFERENCES tasks(id) ON DELETE CASCADE
 			""") # For events
 
 
@@ -149,6 +150,7 @@ class db:
 				id SERIAL PRIMARY KEY,
 				label VARCHAR(2500) NOT NULL,
 			  	color CHAR(6) NOT NULL,
+			  	archived BOOLEAN NOT NULL DEFAULT false,
 			  	owner UUID REFERENCES users(id) ON DELETE CASCADE
 			""")
 		
@@ -156,7 +158,12 @@ class db:
 				id SERIAL PRIMARY KEY,
 			  	name VARCHAR(5000) NOT NULL,
 			  	descr VARCHAR(100000) NOT NULL,
-			  	category INT REFERENCES tasks_categories(id) ON DELETE CASCADE
+			  	deadline TIMESTAMP,
+			  	approx_hours REAL,
+			  	completion BOOLEAN NOT NULL DEFAULT false,
+			  	archived BOOLEAN NOT NULL DEFAULT false,
+			  	category INT REFERENCES tasks_categories(id) ON DELETE CASCADE,
+			  	parent_task INT REFERENCES tasks(id) ON DELETE CASCADE
 			""")
 		
 
