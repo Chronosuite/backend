@@ -42,15 +42,18 @@ def registerUser(name: str, email: str, password: str) -> str:
 		raise EmailAlreadyRegistered()
 	
 	# Register user to database
-	db().modify(f"""
+	uuid = db().modifyAndReturn(f"""
 		INSERT INTO users (name, email_hidden, email_hash, pass)
 		VALUES (
 					'{name}',
 					'{hideEmail(email)}',
 					'{hash(email)}',
 					'{hash(saltPassword(password, email))}'
-			 	);
+			 	)
+		RETURNING id;
 	""")
+
+	return uuid
 
 
 # Confirm email is validated
