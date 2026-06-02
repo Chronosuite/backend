@@ -5,11 +5,11 @@ class Event:
 	def __init__(self, 
 				name: str, 
 				desc: str, 
-				calID: str, 
 				startTime: datetime, 
 				endTime: datetime, 
 				allDay: bool,
-				created: datetime) -> None:
+				calID: str | None = None, 
+				linkedTaskID: str | None = None) -> None:
 		"""
 		Model class for an event
 		"""
@@ -17,11 +17,11 @@ class Event:
 		# Set attributes
 		self.name: str = name
 		self.desc: str = desc
-		self.calID: str = calID
 		self.startTime: datetime = startTime
 		self.endTime: datetime = endTime
-		self.allDay = allDay
-		self.created: datetime = created
+		self.allDay: bool = allDay
+		self.calID: str | None = calID
+		self.linkedTaskID: str | None = linkedTaskID
 
 		# Set attributes to be set later
 		self.attendees: list[str] = []
