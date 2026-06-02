@@ -3,6 +3,7 @@ from datetime import datetime
 
 class Event:
 	def __init__(self, 
+			  	id: int,
 				name: str, 
 				desc: str, 
 				startTime: datetime, 
@@ -15,6 +16,7 @@ class Event:
 		"""
 
 		# Set attributes
+		self.id: int = id
 		self.name: str = name
 		self.desc: str = desc
 		self.startTime: datetime = startTime

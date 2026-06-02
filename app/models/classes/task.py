@@ -1,8 +1,11 @@
 from datetime import datetime
 
+from app.models.classes.event import Event
+
 
 class Task:
 	def __init__(self, 
+			  	id: int,
 				name: str, 
 				desc: str, 
 				categoryID: str, 
@@ -14,11 +17,13 @@ class Task:
 		"""
 
 		# Set attributes
+		self.id: int = id
 		self.name: str = name
 		self.desc: str = desc
 		self.categoryID: str = categoryID
+		self.deadline: datetime = deadline
 		self.allDay: bool = allDay
 		self.parentTask: 'Task' = parentTask
 
 		# Set attributes to be set later
-		self.taskE
+		self.taskEvents: list[Event] = []
