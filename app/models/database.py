@@ -140,8 +140,7 @@ class db:
 				id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
 			  	calendar UUID REFERENCES cal(id) ON DELETE CASCADE,
 				name VARCHAR(5000) NOT NULL,
-			  	descr VARCHAR(1000000) NOT NULL DEFAULT '',
-			  	emails VARCHAR() NOT NULL
+			  	descr VARCHAR(1000000) NOT NULL DEFAULT ''
 			""") # For events
 
 
