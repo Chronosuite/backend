@@ -111,19 +111,15 @@ def getCalEvents(sessID: str) -> dict[str[int, Calendar | Event]]:
 # === EVENTS ===
 # ==============
 
-# Create event
-def createEvent(sessID: str, name: str, descr: str, linkedID: int, starttime: datetime, endtime: datetime, allDay: bool, forCal: bool = True) -> int:
+# Determine edit access
+def canModify(uuid: str, linkedID: int, forCal: bool = True) -> None:
 	"""
-	Create an event
+	Determine if the user can modify the calendar or task category
 
 	If forCal is true then means this event is linked to a calendar (linkedID references calendar) otherwise linkedID references tasks 
-
-	Returns eventID
-	TODO: decide if wanna return a class obj instead
+	
+	Raises exception if no
 	"""
-
-	# Get user to ensure valid
-	uuid = sessions.getSession(sessID)['id']
 
 	# Check if user has access to calendar/task category
 	if forCal:
@@ -161,6 +157,22 @@ def createEvent(sessID: str, name: str, descr: str, linkedID: int, starttime: da
 			if len(userSharedCats) == 0:
 				raise NoAccess()
 
+
+# Create event
+def createEvent(sessID: str, name: str, descr: str, linkedID: int, starttime: datetime, endtime: datetime, allDay: bool, forCal: bool = True) -> int:
+	"""
+	Create an event
+
+	If forCal is true then means this event is linked to a calendar (linkedID references calendar) otherwise linkedID references tasks 
+
+	Returns eventID
+	TODO: decide if wanna return a class obj instead
+	"""
+
+	# Get user to ensure valid
+	uuid = sessions.getSession(sessID)['id']
+
+	canModify(uuid, linkedID, forCal) # Determine if has access
 
 	# Get table to insert linkedID into
 	selectedTable = 'calendar' if forCal else 'linked_task'
