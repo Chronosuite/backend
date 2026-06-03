@@ -1,8 +1,10 @@
 from urllib.parse import quote, unquote
+from datetime import datetime
 
 from app.models.database import db
 from app.models.classes import Calendar, Event
 from app.models.auth import sessions
+from app.utils.exceptions import NoAccess
 
 
 # Fetch user's calendars
@@ -103,3 +105,71 @@ def getCalEvents(sessID: str) -> dict[str[int, Calendar | Event]]:
 		'calendars': calendars,
 		'events': events
 	}
+
+
+# ==============
+# === EVENTS ===
+# ==============
+
+# Create event
+def createEvent(sessID: str, name: str, descr: str, linkedID: int, starttime: datetime, endtime: datetime, allDay: bool, forCal: bool = True) -> int:
+	"""
+	Create an event
+
+	If forCal is true then means this event is linked to a calendar (linkedID references calendar) otherwise linkedID references tasks 
+
+	Returns eventID
+	TODO: decide if wanna return a class obj instead
+	"""
+
+	# Get user to ensure valid
+	uuid = sessions.getSession(sessID)['id']
+
+	# Check if user has access to calendar/task category
+	if forCal:
+		# If adding to calendar, then determine if user owns
+		userCalsIncl = db().fetch(f"""
+			SELECT id FROM cal
+			WHERE owner='{uuid}' AND id={linkedID};
+		""")
+
+		# Determine if calendar is owned by user
+		if len(userCalsIncl) == 0:
+			# If not, then check if shared with user
+			userSharedCals = db().fetch(f"""
+				SELECT id FROM cal_share
+				WHERE calendar={linkedID} AND user='{uuid}';
+			""")
+
+			if len(userSharedCals) == 0:
+				raise NoAccess()
+	else:
+		# If adding to tasks, determine if user part of category
+		userTasksIncl = db().fetch(f"""
+			SELECT id FROM tasks_categories
+			WHERE owner='{uuid}' AND id={linkedID};
+		""")
+
+		# Determine if calendar is owned by user
+		if len(userTasksIncl) == 0:
+			# If not, then check if shared with user
+			userSharedCats = db().fetch(f"""
+				SELECT id FROM tasks_category_share
+				WHERE task_category={linkedID} AND user='{uuid}';
+			""")
+
+			if len(userSharedCats) == 0:
+				raise NoAccess()
+
+
+	# Get table to insert linkedID into
+	selectedTable = 'calendar' if forCal else 'linked_task'
+
+	# Create event in DB
+	eventID = db().modifyAndReturn(f"""
+		INSERT INTO cal_events ({selectedTable}, name, descr, starttime, endtime, all_day)
+		VALUES (%s, %s, %s, %s, %s, %s)
+		RETURNING id;
+	""", (linkedID, name, descr, starttime, endtime, allDay))
+
+	return int(eventID)

@@ -32,6 +32,10 @@ class ExpiredSession(Exception):
 	"""Session does not exist or has been expired"""
 
 
+class NoAccess(Exception):
+	"""When attempting to modify something the user has no access to"""
+
+
 class EmailAlreadyRegistered(Exception):
 	"""The email is already registered to another user"""
 
