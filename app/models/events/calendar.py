@@ -178,10 +178,43 @@ def createEvent(sessID: str, name: str, descr: str, linkedID: int, starttime: da
 	selectedTable = 'calendar' if forCal else 'linked_task'
 
 	# Create event in DB
-	eventID = db().modifyAndReturn(f"""
-		INSERT INTO cal_events ({selectedTable}, name, descr, starttime, endtime, all_day)
+	eventID = db().modifyAndReturn("""
+		INSERT INTO cal_events (%s, name, descr, starttime, endtime, all_day)
 		VALUES (%s, %s, %s, %s, %s, %s)
 		RETURNING id;
-	""", (linkedID, name, descr, starttime, endtime, allDay))
+	""", (selectedTable, linkedID, name, descr, starttime, endtime, allDay))
 
 	return int(eventID)
+
+
+# Delete event
+def deleteEvent(sessID: str, eventID: int) -> None:
+	"""
+	Delete an event given its ID
+
+	TODO: decide if eventID should really be UUID since it might be sent to client side for storing
+	"""
+
+	# Get user to ensure valid
+	uuid = sessions.getSession(sessID)['id']
+
+	# Determine forCal and LinkedID
+	event = db().fetch("""
+		SELECT calendar, linked_task FROM cal_events
+		WHERE id=%s;
+	""", (eventID,))
+
+	if type(event[0]) is int:
+		forCal = True
+		linkedID = event[0]
+	else:
+		forCal = False
+		linkedID = event[1]
+
+	canModify(uuid, linkedID, forCal) # Determine if has access
+
+	# Create event in DB
+	db().modify(f"""
+		DELETE FROM cal_events
+		WHERE id={eventID};
+	""")
