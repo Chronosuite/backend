@@ -218,3 +218,53 @@ def deleteEvent(sessID: str, eventID: int) -> None:
 		DELETE FROM cal_events
 		WHERE id={eventID};
 	""")
+
+
+# Modify event
+def modifyEvent(sessID: str, eventID: int, name: str, descr: str, starttime: datetime, endtime: datetime, allDay: bool) -> None:
+	"""
+	Modify an event given its ID
+
+	TODO: decide if eventID should really be UUID since it might be sent to client side for storing
+	"""
+
+	# Get user to ensure valid
+	uuid = sessions.getSession(sessID)['id']
+
+	# Determine forCal and LinkedID
+	event = db().fetch("""
+		SELECT calendar, linked_task FROM cal_events
+		WHERE id=%s;
+	""", (eventID,))
+
+	if type(event[0]) is int:
+		forCal = True
+		linkedID = event[0]
+	else:
+		forCal = False
+		linkedID = event[1]
+
+	canModify(uuid, linkedID, forCal) # Determine if has access
+
+	# Get table to insert linkedID into
+	selectedTable = 'calendar' if forCal else 'linked_task'
+
+	# Modify event
+	db().modify("""
+		UPDATE cal_events
+		SET %s = %s, 
+			name = %s,
+			descr = %s,
+			starttime = %s,
+			endtime = %s,
+			all_day = %s
+		WHERE id = %s;
+	""", (
+			selectedTable, linkedID,
+			name,
+			descr,
+			starttime,
+			endtime,
+			allDay,
+			eventID
+		))
