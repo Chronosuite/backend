@@ -268,3 +268,33 @@ def modifyEvent(sessID: str, eventID: int, name: str, descr: str, starttime: dat
 			allDay,
 			eventID
 		))
+
+
+# Share Event
+def shareEvent(sessID: str, eventID: int, emailList: list[str], sendEmail: bool = False) -> None:
+	"""
+	Share event with list of emails
+
+	If sendEmail is true then will send email to all ppl in list
+	"""
+
+	# Get user to ensure valid
+	uuid = sessions.getSession(sessID)['id']
+
+	# Determine forCal and LinkedID
+	event = db().fetch("""
+		SELECT calendar, linked_task FROM cal_events
+		WHERE id=%s;
+	""", (eventID,))
+
+	if type(event[0]) is int:
+		forCal = True
+		linkedID = event[0]
+	else:
+		forCal = False
+		linkedID = event[1]
+
+	canModify(uuid, linkedID, forCal) # Determine if has access
+
+	# Delete pre-existing emails in email list if not included
+
