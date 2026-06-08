@@ -208,3 +208,6 @@ __marimo__/
 
 # Don't push virtual environment
 venv/
+
+# Hide service keys
+assets/keys*
