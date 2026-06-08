@@ -1,4 +1,5 @@
 from os import getenv
+import json
 
 class Config:
 	# Get environment variables
@@ -22,6 +23,12 @@ class Config:
 
 	# Security
 	RANDOM_SALT = getenv('RANDOM_SALT', 'please_set_this')
+
+	
+	# Service Keys
+	SERVICE_KEY_PATH = getenv('SERVICE_KEY_PATH', '')
+	with open(SERVICE_KEY_PATH, 'r') as file: # Load service key
+		SERVICE_KEY = json.load(file)
 
 
 	# Other
