@@ -211,3 +211,6 @@ venv/
 
 # Hide service keys
 assets/keys*
+
+# Hide code editor config files
+.vscode/*
